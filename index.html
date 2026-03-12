@@ -11,12 +11,8 @@
                 extend: {
                     colors: {
                         brand: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
+                            50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6',
+                            600: '#2563eb', 800: '#1e40af', 900: '#1e3a8a',
                         }
                     }
                 }
@@ -30,15 +26,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* تحسين شكل السكرول بار */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 font-sans selection:bg-brand-500 selection:text-white pb-10">
+<body class="bg-slate-50 min-h-screen text-slate-800 font-sans selection:bg-brand-500 selection:text-white pb-10 relative">
     
     <div id="root"></div>
 
@@ -52,20 +46,23 @@
                 "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
             ];
 
+            // تحويل القيم إلى نصوص (Strings) لتجنب أخطاء الإدخال في React
             const [veriler, setVeriler] = useState({
-                netMaas: 0,
-                yolUcreti: 168,
-                yemekUcreti: 225,
-                ay: bugun.getMonth() + 1,
-                yil: bugun.getFullYear(),
-                mesaiGunleri: 0,
-                mesaiSaatleri: 0,
-                devamsizlikGunleri: 0,
-                devamsizlikSaatleri: 0,
-                resmiTatilGunleri: 0
+                netMaas: '',
+                yolUcreti: '168',
+                yemekUcreti: '225',
+                ay: (bugun.getMonth() + 1).toString(),
+                yil: bugun.getFullYear().toString(),
+                mesaiGunleri: '',
+                mesaiSaatleri: '',
+                devamsizlikGunleri: '',
+                devamsizlikSaatleri: '',
+                resmiTatilGunleri: ''
             });
 
             const [sonuclar, setSonuclar] = useState(null);
+            const [previewImage, setPreviewImage] = useState(null);
+            const [isGenerating, setIsGenerating] = useState(false);
 
             const getIsGunleri = (yil, ay) => {
                 let gunSayisi = 0;
@@ -85,14 +82,21 @@
 
             const handleChange = (e) => {
                 const { name, value } = e.target;
-                setVeriler(prev => ({ ...prev, [name]: parseFloat(value) || 0 }));
+                setVeriler(prev => ({ ...prev, [name]: value }));
             };
 
             const hesapla = () => {
-                const {
-                    netMaas, yolUcreti, yemekUcreti, ay, yil,
-                    mesaiGunleri, mesaiSaatleri, devamsizlikGunleri, devamsizlikSaatleri, resmiTatilGunleri
-                } = veriler;
+                // تحويل النصوص إلى أرقام أثناء الحساب فقط لتجنب أي أخطاء
+                const netMaas = parseFloat(veriler.netMaas) || 0;
+                const yolUcreti = parseFloat(veriler.yolUcreti) || 0;
+                const yemekUcreti = parseFloat(veriler.yemekUcreti) || 0;
+                const ay = parseInt(veriler.ay) || 1;
+                const yil = parseInt(veriler.yil) || 2024;
+                const mesaiGunleri = parseFloat(veriler.mesaiGunleri) || 0;
+                const mesaiSaatleri = parseFloat(veriler.mesaiSaatleri) || 0;
+                const devamsizlikGunleri = parseFloat(veriler.devamsizlikGunleri) || 0;
+                const devamsizlikSaatleri = parseFloat(veriler.devamsizlikSaatleri) || 0;
+                const resmiTatilGunleri = parseFloat(veriler.resmiTatilGunleri) || 0;
 
                 const gunlukUcret = netMaas / 30;
                 const saatlikUcret = gunlukUcret / 9.5;
@@ -109,40 +113,51 @@
                 setSonuclar({ gunlukUcret, saatlikUcret, aylikIsGunu, fiiliCalismaGunleri, mesaiUcreti, toplamYol, toplamYemek, kesinti, toplamMaas });
             };
 
-            const resimIslemi = async () => {
+            // وظيفة توليد الصورة وفتح النافذة المنبثقة
+            const raporHazirla = async () => {
+                setIsGenerating(true);
                 const element = document.getElementById('rapor-alani');
-                const ayIsmi = aylar[veriler.ay - 1];
-                const dosyaAdi = `VTEKE_Bordro_${ayIsmi}_${veriler.yil}.png`;
-
+                
                 try {
                     const canvas = await html2canvas(element, { scale: 3, backgroundColor: '#ffffff' });
-                    canvas.toBlob(async (blob) => {
-                        const file = new File([blob], dosyaAdi, { type: 'image/png' });
-                        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-                        if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
-                            try {
-                                await navigator.share({
-                                    files: [file],
-                                    title: 'Maaş Bordrosu',
-                                    text: `VTEKE ELEKTRONİK - ${ayIsmi} ${veriler.yil} Maaş Detayı`
-                                });
-                            } catch (error) {
-                                console.log('Paylaşım iptal edildi', error);
-                            }
-                        } else {
-                            const link = document.createElement('a');
-                            link.download = dosyaAdi;
-                            link.href = URL.createObjectURL(blob);
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                            URL.revokeObjectURL(link.href);
-                        }
+                    canvas.toBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        setPreviewImage({ url, blob });
+                        setIsGenerating(false);
                     }, 'image/png');
                 } catch (error) {
-                    console.error("Resim oluşturma hatası:", error);
+                    console.error("Hata:", error);
                     alert("Rapor oluşturulurken bir hata oluştu.");
+                    setIsGenerating(false);
+                }
+            };
+
+            // وظيفة التنزيل للابتوب
+            const indir = () => {
+                const ayIsmi = aylar[parseInt(veriler.ay) - 1];
+                const link = document.createElement('a');
+                link.download = `VTEKE_Bordro_${ayIsmi}_${veriler.yil}.png`;
+                link.href = previewImage.url;
+                link.click();
+            };
+
+            // وظيفة المشاركة السريعة للآيفون والموبايل
+            const paylas = async () => {
+                const ayIsmi = aylar[parseInt(veriler.ay) - 1];
+                const file = new File([previewImage.blob], `VTEKE_Bordro_${ayIsmi}_${veriler.yil}.png`, { type: 'image/png' });
+                
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: 'Maaş Bordrosu',
+                            text: `VTEKE ELEKTRONİK - ${ayIsmi} ${veriler.yil} Maaş Detayı`
+                        });
+                    } catch (error) {
+                        console.log('Paylaşım iptal edildi', error);
+                    }
+                } else {
+                    alert("Cihazınız doğrudan paylaşımı desteklemiyor. Lütfen indir butonunu kullanın.");
                 }
             };
 
@@ -164,6 +179,38 @@
 
             return (
                 <div className="pt-4 md:pt-10 px-4">
+                    
+                    {/* النافذة المنبثقة للمعاينة والمشاركة (تظهر فقط عند جاهزية الصورة) */}
+                    {previewImage && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
+                            <div className="bg-white rounded-2xl p-5 w-full max-w-md shadow-2xl relative flex flex-col items-center animate-fade-in-up">
+                                <button onClick={() => setPreviewImage(null)} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors">
+                                    <i className="fa-solid fa-xmark"></i>
+                                </button>
+                                
+                                <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                    <i className="fa-solid fa-circle-check text-emerald-500"></i> Bordro Hazır!
+                                </h3>
+                                
+                                <div className="w-full bg-slate-100 rounded-xl p-2 mb-5 max-h-[50vh] overflow-auto border border-slate-200 shadow-inner">
+                                    <img src={previewImage.url} alt="Bordro Preview" className="w-full h-auto object-contain rounded" />
+                                </div>
+                                
+                                <div className="flex gap-3 w-full">
+                                    <button onClick={indir} className="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors">
+                                        <i className="fa-solid fa-download"></i> İndir
+                                    </button>
+                                    {/* زر المشاركة يظهر فقط إذا كان الجهاز يدعمه (مثل الآيفون) */}
+                                    {navigator.canShare && (
+                                        <button onClick={paylas} className="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors">
+                                            <i className="fa-solid fa-share-nodes"></i> Paylaş
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="max-w-6xl mx-auto">
                         
                         {/* Header Section */}
@@ -181,7 +228,7 @@
                                 </div>
                                 <div className="bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/20 text-white text-sm font-medium">
                                     <i className="fa-regular fa-calendar-check mr-2"></i>
-                                    {aylar[veriler.ay - 1]} {veriler.yil} Dönemi
+                                    {aylar[parseInt(veriler.ay) - 1]} {veriler.yil} Dönemi
                                 </div>
                             </div>
                         </div>
@@ -212,7 +259,8 @@
                                                 </div>
                                             </div>
                                             <InputField label="Yıl" name="yil" icon="fa-calendar-days" value={veriler.yil} />
-                                            <InputField label="Net Maaş (TL)" name="netMaas" icon="fa-turkish-lira-sign" placeholder="Örn: 17002" color="brand" />
+                                            {/* تم إصلاح حقل الراتب هنا */}
+                                            <InputField label="Net Maaş (TL)" name="netMaas" icon="fa-turkish-lira-sign" placeholder="Örn: 17002" color="brand" value={veriler.netMaas} />
                                         </div>
                                     </div>
 
@@ -234,8 +282,8 @@
                                                 <i className="fa-solid fa-arrow-trend-up"></i> Fazla Mesai (Ek Kazanç)
                                             </h3>
                                             <div className="grid grid-cols-2 gap-3">
-                                                <InputField label="Gün Olarak" name="mesaiGunleri" icon="fa-sun" value={veriler.mesaiGunleri || ''} placeholder="0" color="emerald" />
-                                                <InputField label="Saat Olarak" name="mesaiSaatleri" icon="fa-clock" value={veriler.mesaiSaatleri || ''} placeholder="0" color="emerald" />
+                                                <InputField label="Gün Olarak" name="mesaiGunleri" icon="fa-sun" value={veriler.mesaiGunleri} placeholder="0" color="emerald" />
+                                                <InputField label="Saat Olarak" name="mesaiSaatleri" icon="fa-clock" value={veriler.mesaiSaatleri} placeholder="0" color="emerald" />
                                             </div>
                                         </div>
 
@@ -245,15 +293,15 @@
                                                 <i className="fa-solid fa-arrow-trend-down"></i> Devamsızlık (Kesinti)
                                             </h3>
                                             <div className="grid grid-cols-2 gap-3">
-                                                <InputField label="Gün Olarak" name="devamsizlikGunleri" icon="fa-calendar-xmark" value={veriler.devamsizlikGunleri || ''} placeholder="0" color="rose" />
-                                                <InputField label="Saat Olarak" name="devamsizlikSaatleri" icon="fa-user-clock" value={veriler.devamsizlikSaatleri || ''} placeholder="0" color="rose" />
+                                                <InputField label="Gün Olarak" name="devamsizlikGunleri" icon="fa-calendar-xmark" value={veriler.devamsizlikGunleri} placeholder="0" color="rose" />
+                                                <InputField label="Saat Olarak" name="devamsizlikSaatleri" icon="fa-user-clock" value={veriler.devamsizlikSaatleri} placeholder="0" color="rose" />
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Official Holidays */}
                                     <div className="bg-purple-50 p-5 rounded-xl border border-purple-100 shadow-sm">
-                                        <InputField label="Resmi Tatil / Ücretli İzin (Gün)" name="resmiTatilGunleri" icon="fa-umbrella-beach" value={veriler.resmiTatilGunleri || ''} placeholder="0" color="purple" />
+                                        <InputField label="Resmi Tatil / Ücretli İzin (Gün)" name="resmiTatilGunleri" icon="fa-umbrella-beach" value={veriler.resmiTatilGunleri} placeholder="0" color="purple" />
                                     </div>
                                 </div>
                             </div>
@@ -262,22 +310,19 @@
                             <div className="w-full lg:w-5/12 bg-slate-50 p-6 md:p-8 flex flex-col justify-between">
                                 
                                 <div id="rapor-alani" className="bg-white p-6 rounded-xl shadow-md border border-slate-200 relative overflow-hidden">
-                                    {/* Watermark Logo */}
                                     <i className="fa-solid fa-microchip absolute -right-10 -bottom-10 text-9xl text-slate-50 opacity-50 pointer-events-none transform -rotate-12"></i>
                                     
-                                    {/* Payslip Header */}
                                     <div className="text-center border-b-2 border-slate-800 pb-4 mb-5 relative z-10">
                                         <h2 className="text-xl font-black text-slate-800 tracking-wider">MAAŞ BORDROSU</h2>
-                                        <p className="text-sm text-slate-500 font-medium mt-1">{aylar[veriler.ay - 1]} {veriler.yil} Dönemi</p>
+                                        <p className="text-sm text-slate-500 font-medium mt-1">{aylar[parseInt(veriler.ay) - 1]} {veriler.yil} Dönemi</p>
                                     </div>
 
                                     {sonuclar && (
                                         <div className="space-y-4 text-sm relative z-10">
-                                            {/* Base Salary Details */}
                                             <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
                                                 <div className="flex justify-between items-center mb-2">
                                                     <span className="text-slate-600 font-medium">Sabit Net Maaş:</span>
-                                                    <span className="font-bold text-slate-800">{veriler.netMaas.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺</span>
+                                                    <span className="font-bold text-slate-800">{(parseFloat(veriler.netMaas) || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺</span>
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-2 text-xs text-slate-500 mt-2 border-t border-slate-200 pt-2">
                                                     <div className="flex justify-between"><span>Günlük:</span> <span className="font-semibold">{sonuclar.gunlukUcret.toFixed(2)} ₺</span></div>
@@ -286,7 +331,6 @@
                                                 </div>
                                             </div>
                                             
-                                            {/* Additions */}
                                             <div className="space-y-2">
                                                 <div className="flex justify-between text-emerald-700 font-medium">
                                                     <span className="flex items-center gap-2"><i className="fa-solid fa-plus text-xs"></i> Fazla Mesai Ücreti</span>
@@ -302,7 +346,6 @@
                                                 </div>
                                             </div>
 
-                                            {/* Deductions */}
                                             <div className="pt-2 border-t border-dashed border-slate-300">
                                                 <div className="flex justify-between text-rose-600 font-medium">
                                                     <span className="flex items-center gap-2"><i className="fa-solid fa-minus text-xs"></i> Devamsızlık Kesintisi</span>
@@ -310,7 +353,6 @@
                                                 </div>
                                             </div>
 
-                                            {/* Final Total */}
                                             <div className="mt-6 pt-4 border-t-2 border-slate-800 flex justify-between items-center bg-brand-50 p-3 rounded-lg border-l-4 border-l-brand-600">
                                                 <span className="text-sm font-bold text-brand-900 uppercase tracking-wide">Net Ödenecek:</span>
                                                 <span className="text-xl font-black text-brand-700">
@@ -321,11 +363,15 @@
                                     )}
                                 </div>
 
-                                {/* Share Button */}
-                                <button onClick={resimIslemi} 
-                                    className="w-full mt-6 bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-3 transition-all transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl group">
-                                    <i className="fa-solid fa-paper-plane group-hover:animate-bounce"></i> 
-                                    Bordroyu Paylaş / İndir
+                                <button 
+                                    onClick={raporHazirla} 
+                                    disabled={isGenerating}
+                                    className={`w-full mt-6 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-3 transition-all transform shadow-lg hover:shadow-xl group ${isGenerating ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-900 hover:-translate-y-0.5'}`}>
+                                    {isGenerating ? (
+                                        <><i className="fa-solid fa-spinner fa-spin"></i> Hazırlanıyor...</>
+                                    ) : (
+                                        <><i className="fa-solid fa-image"></i> Bordroyu Hazırla</>
+                                    )}
                                 </button>
                                 <p className="text-center text-xs text-slate-400 mt-3 font-medium">
                                     <i className="fa-solid fa-shield-halved mr-1"></i> Verileriniz sadece cihazınızda hesaplanır.
