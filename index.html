@@ -84,32 +84,45 @@
                 setSonuclar({ gunlukUcret, saatlikUcret, aylikIsGunu, fiiliCalismaGunleri, mesaiUcreti, toplamYol, toplamYemek, kesinti, toplamMaas });
             };
 
-            const resimPaylas = () => {
+            const resimIslemi = async () => {
                 const element = document.getElementById('rapor-alani');
                 const ayIsmi = aylar[veriler.ay - 1];
                 const dosyaAdi = `Maas_Raporu_${ayIsmi}_${veriler.yil}.png`;
 
-                html2canvas(element, { scale: 3, backgroundColor: '#ffffff' }).then(canvas => {
-                    canvas.toBlob((blob) => {
+                try {
+                    const canvas = await html2canvas(element, { scale: 3, backgroundColor: '#ffffff' });
+                    canvas.toBlob(async (blob) => {
                         const file = new File([blob], dosyaAdi, { type: 'image/png' });
+                        
+                        // كشف ذكي لنوع الجهاز (هاتف محمول أو تابلت أم لابتوب)
+                        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-                        // التحقق مما إذا كان الجهاز يدعم مشاركة الملفات مباشرة
-                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                            navigator.share({
-                                title: 'Maaş Raporu',
-                                text: `${ayIsmi} ${veriler.yil} Maaş Detayı`,
-                                files: [file]
-                            }).catch((error) => console.log('Paylaşım iptal edildi', error));
+                        if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
+                            // إذا كان الجهاز هاتفاً محمولاً (مثل آيفون)
+                            try {
+                                await navigator.share({
+                                    files: [file],
+                                    title: 'Maaş Raporu',
+                                    text: `${ayIsmi} ${veriler.yil} Maaş Detayı`
+                                });
+                            } catch (error) {
+                                console.log('Paylaşım iptal edildi veya desteklenmiyor', error);
+                            }
                         } else {
-                            // إذا كان الجهاز لا يدعم المشاركة (مثل الكمبيوتر المكتبي)، نقوم بتنزيل الصورة
+                            // إذا كان الجهاز لابتوب أو كمبيوتر مكتبي (تنزيل مباشر)
                             const link = document.createElement('a');
                             link.download = dosyaAdi;
                             link.href = URL.createObjectURL(blob);
+                            document.body.appendChild(link);
                             link.click();
+                            document.body.removeChild(link);
                             URL.revokeObjectURL(link.href);
                         }
                     }, 'image/png');
-                });
+                } catch (error) {
+                    console.error("Resim oluşturma hatası:", error);
+                    alert("Rapor oluşturulurken bir hata oluştu.");
+                }
             };
 
             return (
@@ -182,7 +195,7 @@
                                 </div>
                             </div>
 
-                            <div className="bg-gray-50 p-4 md:p-6 rounded-lg border border-gray-200">
+                            <div className="bg-gray-50 p-4 md:p-6 rounded-lg border border-gray-200 flex flex-col justify-between">
                                 <div id="rapor-alani" className="bg-white p-4 rounded shadow-sm">
                                     <div className="flex items-center gap-2 border-b pb-3 mb-4">
                                         <i className="fa-solid fa-file-invoice-dollar text-blue-600 text-xl"></i>
@@ -239,7 +252,7 @@
                                     )}
                                 </div>
 
-                                <button onClick={resimPaylas} className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded flex items-center justify-center gap-2 transition-colors">
+                                <button onClick={resimIslemi} className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded flex items-center justify-center gap-2 transition-colors">
                                     <i className="fa-solid fa-share-nodes"></i> Raporu Paylaş / İndir
                                 </button>
                             </div>
