@@ -30,6 +30,7 @@
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .payslip-footer { border-top: 1px solid #e2e8f0; margin-top: 2rem; pt: 1rem; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800 font-sans selection:bg-brand-500 selection:text-white pb-10 relative">
@@ -139,7 +140,6 @@
                 const element = document.getElementById('rapor-alani');
                 
                 try {
-                    // نستخدم scale: 3 لرفع دقة الصورة الملتقطة
                     const canvas = await html2canvas(element, { scale: 3, backgroundColor: '#ffffff' });
                     canvas.toBlob((blob) => {
                         const url = URL.createObjectURL(blob);
@@ -176,7 +176,7 @@
                         console.log('Paylaşım iptal edildi', error);
                     }
                 } else {
-                    alert("Cihazınız doğrudan paylaşımı desteklemiyor. Lütfen indir butonunu kullanın.");
+                    alert("Cihazınız doğrudan paylaşımı destekهmiyor. Lütfen indir butonunu kullanın.");
                 }
             };
 
@@ -235,7 +235,7 @@
                         </div>
 
                         {/* Main Content Grid */}
-                        <div className="bg-white shadow-xl rounded-b-2xl flex flex-col lg:flex-row border border-slate-100">
+                        <div className="bg-white shadow-xl rounded-b-2xl flex flex-col lg:flex-row border border-slate-100 relative">
                             
                             {/* Left Column: Form Inputs */}
                             <div className="w-full lg:w-7/12 p-6 md:p-8 lg:border-r border-slate-100">
@@ -321,7 +321,7 @@
                                         <div className="space-y-4 text-sm relative z-10">
                                             <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
                                                 <div className="flex justify-between items-center mb-2">
-                                                    <span className="text-slate-600 font-medium">Sabit Net Maaş:</span>
+                                                    <span className="text-slate-600 font-medium">Sabit Net Maaش:</span>
                                                     <span className="font-bold text-slate-800">{formatPara(veriler.netMaas)} ₺</span>
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-2 text-xs text-slate-500 mt-2 border-t border-slate-200 pt-2">
@@ -353,7 +353,7 @@
                                                 </div>
                                             </div>
 
-                                            <div className="mt-6 flex justify-between items-center bg-brand-50 p-4 rounded-xl border-l-4 border-brand-600 shadow-sm">
+                                            <div className="mt-6 flex justify-between items-center bg-brand-50 p-4 rounded-xl border-l-4 border-brand-600 shadow-sm transition-all hover:bg-brand-100/50">
                                                 <span className="text-sm font-bold text-brand-900 uppercase tracking-wide">Net Ödenecek:</span>
                                                 <span className="text-xl font-black text-brand-700">
                                                     {formatPara(sonuclar.toplamMaas)} ₺
@@ -363,18 +363,17 @@
                                     )}
 
                                     {/* signature inside payslip area so it appears in downloaded image */}
-                                    <div className="mt-8 pt-6 border-t border-slate-200">
-                                        <div className="flex items-center gap-4 bg-slate-50 border border-slate-100 px-6 py-4 rounded-full shadow-inner">
-                                            {/* Stylized Mechatronics Icon combining fa-gear, fa-robot, fa-microchip */}
-                                            <div className="relative w-16 h-16 flex items-center justify-center">
-                                                <i className="fa-solid fa-gear absolute text-slate-400/50 text-6xl"></i>
-                                                <i className="fa-solid fa-robot absolute text-brand-600 text-3xl"></i>
-                                                <i className="fa-solid fa-microchip absolute text-slate-400 text-xl top-1/4 left-1/4"></i>
+                                    <div className="payslip-footer">
+                                        <div className="flex items-center gap-3 bg-slate-50 border border-slate-100 px-4 py-3 rounded-xl shadow-inner transition-colors hover:bg-slate-100/50">
+                                            {/* Stylized Simple Mechatronics Icon (Microchip + Atoms) */}
+                                            <div className="relative w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow border border-slate-200">
+                                                <i className="fa-solid fa-microchip text-slate-300 text-3xl"></i>
+                                                <i className="fa-solid fa-atom absolute text-brand-600 text-sm"></i>
                                             </div>
                                             <div className="text-left" dir="ltr">
-                                                <p className="text-xs text-slate-500 font-medium tracking-wide">Mühendis</p>
-                                                <p className="text-lg font-bold text-slate-800">
-                                                    Nuh Almaghrıbı Tarafından Tasarlandı
+                                                <p className="text-[10px] text-slate-500 font-medium tracking-wide">MEKATRONİK SİSTEM GELİŞTİRİCİSİ</p>
+                                                <p className="text-base font-bold text-slate-800">
+                                                    Nuh Almaghrıbı Tasarladı
                                                 </p>
                                             </div>
                                         </div>
@@ -394,7 +393,6 @@
                                 </button>
                                 <p className="text-center text-xs text-slate-400 mt-3 font-medium">
                                     <i className="fa-solid fa-shield-halved mr-1"></i> Verileriniz sadece cihazınızda hesaplanır.
-                                
                                 </p>
                             </div>
 
