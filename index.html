@@ -3,15 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VTEKE ELEKTRONİK MAAŞ HESAPLAMA</title>
+    <title>VTEKE ELEKTRONİK - Maaş Bordrosu</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* تحسين شكل السكرول بار */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen text-gray-800">
+<body class="bg-slate-50 min-h-screen text-slate-800 font-sans selection:bg-brand-500 selection:text-white pb-10">
     
     <div id="root"></div>
 
@@ -20,8 +47,6 @@
 
         function App() {
             const bugun = new Date();
-            
-            // قائمة الأشهر باللغة التركية
             const aylar = [
                 "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", 
                 "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
@@ -87,29 +112,25 @@
             const resimIslemi = async () => {
                 const element = document.getElementById('rapor-alani');
                 const ayIsmi = aylar[veriler.ay - 1];
-                const dosyaAdi = `Maas_Raporu_${ayIsmi}_${veriler.yil}.png`;
+                const dosyaAdi = `VTEKE_Bordro_${ayIsmi}_${veriler.yil}.png`;
 
                 try {
                     const canvas = await html2canvas(element, { scale: 3, backgroundColor: '#ffffff' });
                     canvas.toBlob(async (blob) => {
                         const file = new File([blob], dosyaAdi, { type: 'image/png' });
-                        
-                        // كشف ذكي لنوع الجهاز (هاتف محمول أو تابلت أم لابتوب)
                         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
                         if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
-                            // إذا كان الجهاز هاتفاً محمولاً (مثل آيفون)
                             try {
                                 await navigator.share({
                                     files: [file],
-                                    title: 'Maaş Raporu',
-                                    text: `${ayIsmi} ${veriler.yil} Maaş Detayı`
+                                    title: 'Maaş Bordrosu',
+                                    text: `VTEKE ELEKTRONİK - ${ayIsmi} ${veriler.yil} Maaş Detayı`
                                 });
                             } catch (error) {
-                                console.log('Paylaşım iptal edildi veya desteklenmiyor', error);
+                                console.log('Paylaşım iptal edildi', error);
                             }
                         } else {
-                            // إذا كان الجهاز لابتوب أو كمبيوتر مكتبي (تنزيل مباشر)
                             const link = document.createElement('a');
                             link.download = dosyaAdi;
                             link.href = URL.createObjectURL(blob);
@@ -125,137 +146,192 @@
                 }
             };
 
-            return (
-                <div className="p-4 md:p-8">
-                    <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-                        <div className="bg-blue-800 text-white p-6 flex items-center justify-center gap-3">
-                            <i className="fa-solid fa-calculator text-2xl"></i>
-                            <h1 className="text-xl md:text-2xl font-bold text-center">VTEKE ELEKTRONİK MAAŞ HESAPLAMA SİSTEMİ</h1>
+            const InputField = ({ label, name, type="number", icon, value, placeholder, color="brand" }) => (
+                <div>
+                    <label className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 text-${color}-700`}>{label}</label>
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i className={`fa-solid ${icon} text-slate-400`}></i>
                         </div>
-                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-4">
-                                <h2 className="text-xl font-semibold border-b pb-2 mb-4 text-blue-700">Veri Girişi</h2>
+                        <input 
+                            type={type} name={name} value={value} onChange={handleChange} placeholder={placeholder}
+                            className={`w-full pl-10 pr-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm shadow-sm placeholder-slate-400
+                            focus:outline-none focus:border-${color}-500 focus:ring-1 focus:ring-${color}-500 transition-all`}
+                        />
+                    </div>
+                </div>
+            );
+
+            return (
+                <div className="pt-4 md:pt-10 px-4">
+                    <div className="max-w-6xl mx-auto">
+                        
+                        {/* Header Section */}
+                        <div className="bg-gradient-to-r from-brand-900 to-brand-600 rounded-t-2xl p-6 md:p-8 shadow-lg relative overflow-hidden">
+                            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
+                            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+                                <div className="flex items-center gap-4 text-white">
+                                    <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/30">
+                                        <i className="fa-solid fa-microchip text-3xl"></i>
+                                    </div>
+                                    <div>
+                                        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">VTEKE ELEKTRONİK</h1>
+                                        <p className="text-brand-100 font-medium tracking-wide">Akıllı Maaş Hesaplama Sistemi</p>
+                                    </div>
+                                </div>
+                                <div className="bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/20 text-white text-sm font-medium">
+                                    <i className="fa-regular fa-calendar-check mr-2"></i>
+                                    {aylar[veriler.ay - 1]} {veriler.yil} Dönemi
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Main Content Grid */}
+                        <div className="bg-white shadow-xl rounded-b-2xl flex flex-col lg:flex-row border border-slate-100">
+                            
+                            {/* Left Column: Form Inputs */}
+                            <div className="w-full lg:w-7/12 p-6 md:p-8 lg:border-r border-slate-100">
+                                <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                    <i className="fa-solid fa-pen-to-square text-brand-500"></i> Veri Giriş Paneli
+                                </h2>
                                 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Ay</label>
-                                        <select name="ay" value={veriler.ay} onChange={handleChange} className="w-full border rounded p-2 bg-gray-50 outline-none focus:border-blue-500">
-                                            {aylar.map((ayIsmi, index) => (
-                                                <option key={index + 1} value={index + 1}>{ayIsmi}</option>
-                                            ))}
-                                        </select>
+                                <div className="space-y-6">
+                                    {/* Section 1: Basic Info */}
+                                    <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 shadow-sm">
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                            <div>
+                                                <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-slate-700">Dönem (Ay)</label>
+                                                <div className="relative">
+                                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                        <i className="fa-solid fa-calendar text-slate-400"></i>
+                                                    </div>
+                                                    <select name="ay" value={veriler.ay} onChange={handleChange} 
+                                                        className="w-full pl-10 pr-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm shadow-sm focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 appearance-none">
+                                                        {aylar.map((ayIsmi, index) => <option key={index + 1} value={index + 1}>{ayIsmi}</option>)}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <InputField label="Yıl" name="yil" icon="fa-calendar-days" value={veriler.yil} />
+                                            <InputField label="Net Maaş (TL)" name="netMaas" icon="fa-turkish-lira-sign" placeholder="Örn: 17002" color="brand" />
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Yıl</label>
-                                        <input type="number" name="yil" value={veriler.yil} onChange={handleChange} className="w-full border rounded p-2 bg-gray-50 outline-none focus:border-blue-500" />
-                                    </div>
-                                </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Net Maaş (TL)</label>
-                                    <input type="number" name="netMaas" onChange={handleChange} className="w-full border border-gray-300 rounded p-2 outline-none focus:border-blue-500" placeholder="Örn: 17002" />
-                                </div>
+                                    {/* Section 2: Allowances */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div className="bg-blue-50/50 p-5 rounded-xl border border-blue-100 shadow-sm">
+                                            <InputField label="Günlük Yol Ücreti (TL)" name="yolUcreti" icon="fa-bus" value={veriler.yolUcreti} color="blue" />
+                                        </div>
+                                        <div className="bg-orange-50/50 p-5 rounded-xl border border-orange-100 shadow-sm">
+                                            <InputField label="Günlük Yemek Ücreti (TL)" name="yemekUcreti" icon="fa-utensils" value={veriler.yemekUcreti} color="orange" />
+                                        </div>
+                                    </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Günlük Yol (TL)</label>
-                                        <input type="number" name="yolUcreti" value={veriler.yolUcreti} onChange={handleChange} className="w-full border rounded p-2 outline-none focus:border-blue-500" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Günlük Yemek (TL)</label>
-                                        <input type="number" name="yemekUcreti" value={veriler.yemekUcreti} onChange={handleChange} className="w-full border rounded p-2 outline-none focus:border-blue-500" />
-                                    </div>
-                                </div>
+                                    {/* Section 3: Overtime & Deductions */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        {/* Overtime (Green) */}
+                                        <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-100 shadow-sm space-y-4">
+                                            <h3 className="text-sm font-bold text-emerald-800 border-b border-emerald-200 pb-2 flex items-center gap-2">
+                                                <i className="fa-solid fa-arrow-trend-up"></i> Fazla Mesai (Ek Kazanç)
+                                            </h3>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <InputField label="Gün Olarak" name="mesaiGunleri" icon="fa-sun" value={veriler.mesaiGunleri || ''} placeholder="0" color="emerald" />
+                                                <InputField label="Saat Olarak" name="mesaiSaatleri" icon="fa-clock" value={veriler.mesaiSaatleri || ''} placeholder="0" color="emerald" />
+                                            </div>
+                                        </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1 text-green-700">Fazla Mesai (Gün)</label>
-                                        <input type="number" name="mesaiGunleri" value={veriler.mesaiGunleri || ''} onChange={handleChange} className="w-full border rounded p-2 outline-none focus:border-green-500" />
+                                        {/* Deductions (Red) */}
+                                        <div className="bg-rose-50 p-5 rounded-xl border border-rose-100 shadow-sm space-y-4">
+                                            <h3 className="text-sm font-bold text-rose-800 border-b border-rose-200 pb-2 flex items-center gap-2">
+                                                <i className="fa-solid fa-arrow-trend-down"></i> Devamsızlık (Kesinti)
+                                            </h3>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <InputField label="Gün Olarak" name="devamsizlikGunleri" icon="fa-calendar-xmark" value={veriler.devamsizlikGunleri || ''} placeholder="0" color="rose" />
+                                                <InputField label="Saat Olarak" name="devamsizlikSaatleri" icon="fa-user-clock" value={veriler.devamsizlikSaatleri || ''} placeholder="0" color="rose" />
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1 text-green-700">Fazla Mesai (Saat)</label>
-                                        <input type="number" name="mesaiSaatleri" value={veriler.mesaiSaatleri || ''} onChange={handleChange} className="w-full border rounded p-2 outline-none focus:border-green-500" />
-                                    </div>
-                                </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1 text-red-700">Devamsızlık (Gün)</label>
-                                        <input type="number" name="devamsizlikGunleri" value={veriler.devamsizlikGunleri || ''} onChange={handleChange} className="w-full border rounded p-2 outline-none focus:border-red-500" />
+                                    {/* Official Holidays */}
+                                    <div className="bg-purple-50 p-5 rounded-xl border border-purple-100 shadow-sm">
+                                        <InputField label="Resmi Tatil / Ücretli İzin (Gün)" name="resmiTatilGunleri" icon="fa-umbrella-beach" value={veriler.resmiTatilGunleri || ''} placeholder="0" color="purple" />
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1 text-red-700">Devamsızlık (Saat)</label>
-                                        <input type="number" name="devamsizlikSaatleri" value={veriler.devamsizlikSaatleri || ''} onChange={handleChange} className="w-full border rounded p-2 outline-none focus:border-red-500" />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium mb-1 text-orange-600">Resmi Tatil / İzin (Gün)</label>
-                                    <input type="number" name="resmiTatilGunleri" value={veriler.resmiTatilGunleri || ''} onChange={handleChange} className="w-full border rounded p-2 outline-none focus:border-orange-500" />
                                 </div>
                             </div>
 
-                            <div className="bg-gray-50 p-4 md:p-6 rounded-lg border border-gray-200 flex flex-col justify-between">
-                                <div id="rapor-alani" className="bg-white p-4 rounded shadow-sm">
-                                    <div className="flex items-center gap-2 border-b pb-3 mb-4">
-                                        <i className="fa-solid fa-file-invoice-dollar text-blue-600 text-xl"></i>
-                                        <h2 className="text-lg font-bold text-gray-800">Maaş Detayı - {aylar[veriler.ay - 1]} {veriler.yil}</h2>
+                            {/* Right Column: Payslip Result */}
+                            <div className="w-full lg:w-5/12 bg-slate-50 p-6 md:p-8 flex flex-col justify-between">
+                                
+                                <div id="rapor-alani" className="bg-white p-6 rounded-xl shadow-md border border-slate-200 relative overflow-hidden">
+                                    {/* Watermark Logo */}
+                                    <i className="fa-solid fa-microchip absolute -right-10 -bottom-10 text-9xl text-slate-50 opacity-50 pointer-events-none transform -rotate-12"></i>
+                                    
+                                    {/* Payslip Header */}
+                                    <div className="text-center border-b-2 border-slate-800 pb-4 mb-5 relative z-10">
+                                        <h2 className="text-xl font-black text-slate-800 tracking-wider">MAAŞ BORDROSU</h2>
+                                        <p className="text-sm text-slate-500 font-medium mt-1">{aylar[veriler.ay - 1]} {veriler.yil} Dönemi</p>
                                     </div>
+
                                     {sonuclar && (
-                                        <div className="space-y-3 text-sm">
-                                            <div className="flex justify-between">
-                                                <span className="text-gray-600">Sabit Net Maaş:</span>
-                                                <span className="font-medium">{veriler.netMaas.toFixed(2)} TL</span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span className="text-gray-600">Günlük Ücret:</span>
-                                                <span className="font-medium">{sonuclar.gunlukUcret.toFixed(2)} TL</span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span className="text-gray-600">Saatlik Ücret:</span>
-                                                <span className="font-medium">{sonuclar.saatlikUcret.toFixed(2)} TL</span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span className="text-gray-600">Aydaki İş Günü:</span>
-                                                <span className="font-medium">{sonuclar.aylikIsGunu} Gün</span>
+                                        <div className="space-y-4 text-sm relative z-10">
+                                            {/* Base Salary Details */}
+                                            <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <span className="text-slate-600 font-medium">Sabit Net Maaş:</span>
+                                                    <span className="font-bold text-slate-800">{veriler.netMaas.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺</span>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-2 text-xs text-slate-500 mt-2 border-t border-slate-200 pt-2">
+                                                    <div className="flex justify-between"><span>Günlük:</span> <span className="font-semibold">{sonuclar.gunlukUcret.toFixed(2)} ₺</span></div>
+                                                    <div className="flex justify-between"><span>Saatlik:</span> <span className="font-semibold">{sonuclar.saatlikUcret.toFixed(2)} ₺</span></div>
+                                                    <div className="flex justify-between col-span-2"><span>Aydaki İş Günü (Hafta sonu hariç):</span> <span className="font-semibold">{sonuclar.aylikIsGunu} Gün</span></div>
+                                                </div>
                                             </div>
                                             
-                                            <hr className="my-2" />
-                                            
-                                            <div className="flex justify-between text-green-700">
-                                                <span>Fazla Mesai Ücreti (+):</span>
-                                                <span className="font-medium">{sonuclar.mesaiUcreti.toFixed(2)} TL</span>
-                                            </div>
-                                            <div className="flex justify-between text-green-700">
-                                                <span>Yol Yardımı Toplam (+):</span>
-                                                <span className="font-medium">{sonuclar.toplamYol.toFixed(2)} TL</span>
-                                            </div>
-                                            <div className="flex justify-between text-green-700">
-                                                <span>Yemek Yardımı Toplam (+):</span>
-                                                <span className="font-medium">{sonuclar.toplamYemek.toFixed(2)} TL</span>
-                                            </div>
-
-                                            <hr className="my-2" />
-
-                                            <div className="flex justify-between text-red-600">
-                                                <span>Devamsızlık Kesintisi (-):</span>
-                                                <span className="font-medium">{sonuclar.kesinti.toFixed(2)} TL</span>
+                                            {/* Additions */}
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between text-emerald-700 font-medium">
+                                                    <span className="flex items-center gap-2"><i className="fa-solid fa-plus text-xs"></i> Fazla Mesai Ücreti</span>
+                                                    <span>{sonuclar.mesaiUcreti.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺</span>
+                                                </div>
+                                                <div className="flex justify-between text-emerald-700 font-medium">
+                                                    <span className="flex items-center gap-2"><i className="fa-solid fa-plus text-xs"></i> Yol Yardımı</span>
+                                                    <span>{sonuclar.toplamYol.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺</span>
+                                                </div>
+                                                <div className="flex justify-between text-emerald-700 font-medium">
+                                                    <span className="flex items-center gap-2"><i className="fa-solid fa-plus text-xs"></i> Yemek Yardımı</span>
+                                                    <span>{sonuclar.toplamYemek.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺</span>
+                                                </div>
                                             </div>
 
-                                            <div className="mt-6 pt-4 border-t-2 border-gray-800 flex justify-between items-center">
-                                                <span className="text-sm md:text-lg font-bold text-gray-800">NET ÖDENECEK:</span>
-                                                <span className="text-lg md:text-xl font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded">
-                                                    {sonuclar.toplamMaas.toFixed(2)} TL
+                                            {/* Deductions */}
+                                            <div className="pt-2 border-t border-dashed border-slate-300">
+                                                <div className="flex justify-between text-rose-600 font-medium">
+                                                    <span className="flex items-center gap-2"><i className="fa-solid fa-minus text-xs"></i> Devamsızlık Kesintisi</span>
+                                                    <span>{sonuclar.kesinti.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Final Total */}
+                                            <div className="mt-6 pt-4 border-t-2 border-slate-800 flex justify-between items-center bg-brand-50 p-3 rounded-lg border-l-4 border-l-brand-600">
+                                                <span className="text-sm font-bold text-brand-900 uppercase tracking-wide">Net Ödenecek:</span>
+                                                <span className="text-xl font-black text-brand-700">
+                                                    {sonuclar.toplamMaas.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺
                                                 </span>
                                             </div>
                                         </div>
                                     )}
                                 </div>
 
-                                <button onClick={resimIslemi} className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded flex items-center justify-center gap-2 transition-colors">
-                                    <i className="fa-solid fa-share-nodes"></i> Raporu Paylaş / İndir
+                                {/* Share Button */}
+                                <button onClick={resimIslemi} 
+                                    className="w-full mt-6 bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-3 transition-all transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl group">
+                                    <i className="fa-solid fa-paper-plane group-hover:animate-bounce"></i> 
+                                    Bordroyu Paylaş / İndir
                                 </button>
+                                <p className="text-center text-xs text-slate-400 mt-3 font-medium">
+                                    <i className="fa-solid fa-shield-halved mr-1"></i> Verileriniz sadece cihazınızda hesaplanır.
+                                </p>
                             </div>
+
                         </div>
                     </div>
                 </div>
