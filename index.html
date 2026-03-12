@@ -39,7 +39,6 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // إخراج المكون إلى الخارج لمنع مشكلة فقدان التركيز (Loss of focus)
         const InputField = ({ label, name, type="number", icon, value, placeholder, color="brand", onChange }) => (
             <div>
                 <label className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 text-${color}-700`}>{label}</label>
@@ -126,6 +125,14 @@
                 const toplamMaas = netMaas + mesaiUcreti + toplamYol + toplamYemek - kesinti;
 
                 setSonuclar({ gunlukUcret, saatlikUcret, aylikIsGunu, fiiliCalismaGunleri, mesaiUcreti, toplamYol, toplamYemek, kesinti, toplamMaas });
+            };
+
+            // دالة تنسيق الأرقام لتظهر برقمين عشريين فقط دائماً
+            const formatPara = (deger) => {
+                return (parseFloat(deger) || 0).toLocaleString('tr-TR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
             };
 
             const raporHazirla = async () => {
@@ -248,7 +255,6 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            {/* تم إضافة خاصية onChange لكل المربعات هنا */}
                                             <InputField label="Yıl" name="yil" icon="fa-calendar-days" value={veriler.yil} onChange={handleChange} />
                                             <InputField label="Net Maaş (TL)" name="netMaas" icon="fa-turkish-lira-sign" placeholder="Örn: 17002" color="brand" value={veriler.netMaas} onChange={handleChange} />
                                         </div>
@@ -306,11 +312,11 @@
                                             <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
                                                 <div className="flex justify-between items-center mb-2">
                                                     <span className="text-slate-600 font-medium">Sabit Net Maaş:</span>
-                                                    <span className="font-bold text-slate-800">{(parseFloat(veriler.netMaas) || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺</span>
+                                                    <span className="font-bold text-slate-800">{formatPara(veriler.netMaas)} ₺</span>
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-2 text-xs text-slate-500 mt-2 border-t border-slate-200 pt-2">
-                                                    <div className="flex justify-between"><span>Günlük:</span> <span className="font-semibold">{sonuclar.gunlukUcret.toFixed(2)} ₺</span></div>
-                                                    <div className="flex justify-between"><span>Saatlik:</span> <span className="font-semibold">{sonuclar.saatlikUcret.toFixed(2)} ₺</span></div>
+                                                    <div className="flex justify-between"><span>Günlük:</span> <span className="font-semibold">{formatPara(sonuclar.gunlukUcret)} ₺</span></div>
+                                                    <div className="flex justify-between"><span>Saatlik:</span> <span className="font-semibold">{formatPara(sonuclar.saatlikUcret)} ₺</span></div>
                                                     <div className="flex justify-between col-span-2"><span>Aydaki İş Günü (Hafta sonu hariç):</span> <span className="font-semibold">{sonuclar.aylikIsGunu} Gün</span></div>
                                                 </div>
                                             </div>
@@ -318,29 +324,30 @@
                                             <div className="space-y-2">
                                                 <div className="flex justify-between text-emerald-700 font-medium">
                                                     <span className="flex items-center gap-2"><i className="fa-solid fa-plus text-xs"></i> Fazla Mesai Ücreti</span>
-                                                    <span>{sonuclar.mesaiUcreti.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺</span>
+                                                    <span>{formatPara(sonuclar.mesaiUcreti)} ₺</span>
                                                 </div>
                                                 <div className="flex justify-between text-emerald-700 font-medium">
                                                     <span className="flex items-center gap-2"><i className="fa-solid fa-plus text-xs"></i> Yol Yardımı</span>
-                                                    <span>{sonuclar.toplamYol.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺</span>
+                                                    <span>{formatPara(sonuclar.toplamYol)} ₺</span>
                                                 </div>
                                                 <div className="flex justify-between text-emerald-700 font-medium">
                                                     <span className="flex items-center gap-2"><i className="fa-solid fa-plus text-xs"></i> Yemek Yardımı</span>
-                                                    <span>{sonuclar.toplamYemek.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺</span>
+                                                    <span>{formatPara(sonuclar.toplamYemek)} ₺</span>
                                                 </div>
                                             </div>
 
                                             <div className="pt-2 border-t border-dashed border-slate-300">
                                                 <div className="flex justify-between text-rose-600 font-medium">
                                                     <span className="flex items-center gap-2"><i className="fa-solid fa-minus text-xs"></i> Devamsızlık Kesintisi</span>
-                                                    <span>{sonuclar.kesinti.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺</span>
+                                                    <span>{formatPara(sonuclar.kesinti)} ₺</span>
                                                 </div>
                                             </div>
 
-                                            <div className="mt-6 pt-4 border-t-2 border-slate-800 flex justify-between items-center bg-brand-50 p-3 rounded-lg border-l-4 border-l-brand-600">
+                                            {/* هنا تم التعديل: إزالة الخط الأسود وجعلها بطاقة مستقلة ناعمة */}
+                                            <div className="mt-6 flex justify-between items-center bg-brand-50 p-4 rounded-xl border-l-4 border-brand-600 shadow-sm">
                                                 <span className="text-sm font-bold text-brand-900 uppercase tracking-wide">Net Ödenecek:</span>
                                                 <span className="text-xl font-black text-brand-700">
-                                                    {sonuclar.toplamMaas.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺
+                                                    {formatPara(sonuclar.toplamMaas)} ₺
                                                 </span>
                                             </div>
                                         </div>
