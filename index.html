@@ -127,7 +127,6 @@
                 setSonuclar({ gunlukUcret, saatlikUcret, aylikIsGunu, fiiliCalismaGunleri, mesaiUcreti, toplamYol, toplamYemek, kesinti, toplamMaas });
             };
 
-            // دالة تنسيق الأرقام لتظهر برقمين عشريين فقط دائماً
             const formatPara = (deger) => {
                 return (parseFloat(deger) || 0).toLocaleString('tr-TR', {
                     minimumFractionDigits: 2,
@@ -233,7 +232,7 @@
                             </div>
                         </div>
 
-                        <div className="bg-white shadow-xl rounded-b-2xl flex flex-col lg:flex-row border border-slate-100">
+                        <div className="bg-white shadow-xl rounded-b-2xl flex flex-col lg:flex-row border border-slate-100 mb-8">
                             
                             <div className="w-full lg:w-7/12 p-6 md:p-8 lg:border-r border-slate-100">
                                 <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
@@ -343,7 +342,6 @@
                                                 </div>
                                             </div>
 
-                                            {/* هنا تم التعديل: إزالة الخط الأسود وجعلها بطاقة مستقلة ناعمة */}
                                             <div className="mt-6 flex justify-between items-center bg-brand-50 p-4 rounded-xl border-l-4 border-brand-600 shadow-sm">
                                                 <span className="text-sm font-bold text-brand-900 uppercase tracking-wide">Net Ödenecek:</span>
                                                 <span className="text-xl font-black text-brand-700">
@@ -368,8 +366,13 @@
                                     <i className="fa-solid fa-shield-halved mr-1"></i> Verileriniz sadece cihazınızda hesaplanır.
                                 </p>
                             </div>
-
                         </div>
+                        
+                        {/* توقيع المطور (تمت الإضافة هنا) */}
+                        <div className="text-center text-sm text-slate-500" dir="rtl">
+                            تم تطوير هذا الموقع من قبل المهندس <span className="font-bold text-slate-700" dir="ltr">Nuh Almaghrıbı</span> <i className="fa-solid fa-code text-brand-500 text-xs mr-1"></i>
+                        </div>
+
                     </div>
                 </div>
             );
