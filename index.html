@@ -30,7 +30,6 @@
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .payslip-footer { border-top: 1px solid #e2e8f0; margin-top: 2rem; pt: 1rem; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800 font-sans selection:bg-brand-500 selection:text-white pb-10 relative">
@@ -176,7 +175,7 @@
                         console.log('Paylaşım iptal edildi', error);
                     }
                 } else {
-                    alert("Cihazınız doğrudan paylaşımı destekهmiyor. Lütfen indir butonunu kullanın.");
+                    alert("Cihazınız doğrudan paylaşımı desteklemiyor. Lütfen indir butonunu kullanın.");
                 }
             };
 
@@ -214,7 +213,6 @@
 
                     <div className="max-w-6xl mx-auto">
                         
-                        {/* Header Section */}
                         <div className="bg-gradient-to-r from-brand-900 to-brand-600 rounded-t-2xl p-6 md:p-8 shadow-lg relative overflow-hidden">
                             <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
                             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -234,17 +232,14 @@
                             </div>
                         </div>
 
-                        {/* Main Content Grid */}
-                        <div className="bg-white shadow-xl rounded-b-2xl flex flex-col lg:flex-row border border-slate-100 relative">
+                        <div className="bg-white shadow-xl rounded-b-2xl flex flex-col lg:flex-row border border-slate-100 mb-8">
                             
-                            {/* Left Column: Form Inputs */}
                             <div className="w-full lg:w-7/12 p-6 md:p-8 lg:border-r border-slate-100">
                                 <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
                                     <i className="fa-solid fa-pen-to-square text-brand-500"></i> Veri Giriş Paneli
                                 </h2>
                                 
                                 <div className="space-y-6">
-                                    {/* Section 1: Basic Info */}
                                     <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 shadow-sm">
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                                             <div>
@@ -264,7 +259,6 @@
                                         </div>
                                     </div>
 
-                                    {/* Section 2: Allowances */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         <div className="bg-blue-50/50 p-5 rounded-xl border border-blue-100 shadow-sm">
                                             <InputField label="Günlük Yol Ücreti (TL)" name="yolUcreti" icon="fa-bus" value={veriler.yolUcreti} color="blue" onChange={handleChange} />
@@ -274,9 +268,7 @@
                                         </div>
                                     </div>
 
-                                    {/* Section 3: Overtime & Deductions */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                        {/* Overtime (Green) */}
                                         <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-100 shadow-sm space-y-4">
                                             <h3 className="text-sm font-bold text-emerald-800 border-b border-emerald-200 pb-2 flex items-center gap-2">
                                                 <i className="fa-solid fa-arrow-trend-up"></i> Fazla Mesai (Ek Kazanç)
@@ -287,7 +279,6 @@
                                             </div>
                                         </div>
 
-                                        {/* Deductions (Red) */}
                                         <div className="bg-rose-50 p-5 rounded-xl border border-rose-100 shadow-sm space-y-4">
                                             <h3 className="text-sm font-bold text-rose-800 border-b border-rose-200 pb-2 flex items-center gap-2">
                                                 <i className="fa-solid fa-arrow-trend-down"></i> Devamsızlık (Kesinti)
@@ -299,14 +290,12 @@
                                         </div>
                                     </div>
 
-                                    {/* Official Holidays */}
                                     <div className="bg-purple-50 p-5 rounded-xl border border-purple-100 shadow-sm">
                                         <InputField label="Resmi Tatil / Ücretli İzin (Gün)" name="resmiTatilGunleri" icon="fa-umbrella-beach" value={veriler.resmiTatilGunleri} placeholder="0" color="purple" onChange={handleChange} />
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Right Column: Payslip Result */}
                             <div className="w-full lg:w-5/12 bg-slate-50 p-6 md:p-8 flex flex-col justify-between">
                                 
                                 <div id="rapor-alani" className="bg-white p-6 rounded-xl shadow-md border border-slate-200 relative overflow-hidden">
@@ -321,7 +310,7 @@
                                         <div className="space-y-4 text-sm relative z-10">
                                             <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
                                                 <div className="flex justify-between items-center mb-2">
-                                                    <span className="text-slate-600 font-medium">Sabit Net Maaش:</span>
+                                                    <span className="text-slate-600 font-medium">Sabit Net Maaş:</span>
                                                     <span className="font-bold text-slate-800">{formatPara(veriler.netMaas)} ₺</span>
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-2 text-xs text-slate-500 mt-2 border-t border-slate-200 pt-2">
@@ -353,7 +342,7 @@
                                                 </div>
                                             </div>
 
-                                            <div className="mt-6 flex justify-between items-center bg-brand-50 p-4 rounded-xl border-l-4 border-brand-600 shadow-sm transition-all hover:bg-brand-100/50">
+                                            <div className="mt-6 flex justify-between items-center bg-brand-50 p-4 rounded-xl border-l-4 border-brand-600 shadow-sm">
                                                 <span className="text-sm font-bold text-brand-900 uppercase tracking-wide">Net Ödenecek:</span>
                                                 <span className="text-xl font-black text-brand-700">
                                                     {formatPara(sonuclar.toplamMaas)} ₺
@@ -362,21 +351,11 @@
                                         </div>
                                     )}
 
-                                    {/* signature inside payslip area so it appears in downloaded image */}
-                                    <div className="payslip-footer">
-                                        <div className="flex items-center gap-3 bg-slate-50 border border-slate-100 px-4 py-3 rounded-xl shadow-inner transition-colors hover:bg-slate-100/50">
-                                            {/* Stylized Simple Mechatronics Icon (Microchip + Atoms) */}
-                                            <div className="relative w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow border border-slate-200">
-                                                <i className="fa-solid fa-microchip text-slate-300 text-3xl"></i>
-                                                <i className="fa-solid fa-atom absolute text-brand-600 text-sm"></i>
-                                            </div>
-                                            <div className="text-left" dir="ltr">
-                                                <p className="text-[10px] text-slate-500 font-medium tracking-wide">MEKATRONİK SİSTEM GELİŞTİRİCİSİ</p>
-                                                <p className="text-base font-bold text-slate-800">
-                                                    Nuh Almaghrıbı Tasarladı
-                                                </p>
-                                            </div>
-                                        </div>
+                                    {/* توقيع المطور البسيط والمباشر داخل القسيمة */}
+                                    <div className="mt-8 pt-4 border-t border-slate-100 text-center relative z-10">
+                                        <p className="text-xs text-slate-400 font-medium">
+                                            Bu uygulama Mühendis <span className="font-bold text-slate-500">Nuh Almaghrıbı</span> tarafından geliştirilmiştir.
+                                        </p>
                                     </div>
 
                                 </div>
