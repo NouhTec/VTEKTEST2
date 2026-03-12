@@ -8,7 +8,7 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-100 min-h-screen text-gray-800">
@@ -77,17 +77,17 @@
                 setSonuclar({ gunlukUcret, saatlikUcret, aylikIsGunu, fiiliCalismaGunleri, mesaiUcreti, toplamYol, toplamYemek, kesinti, toplamMaas });
             };
 
-            const pdfIndir = () => {
+            const resimIndir = () => {
                 const element = document.getElementById('rapor-alani');
-                const ayIsmi = new Date(veriler.yil, veriler.ay - 1).toLocaleString('tr-TR', { month: 'long' });
-                const opt = {
-                    margin: 0.5,
-                    filename: `Maas_Raporu_${ayIsmi}_${veriler.yil}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2 },
-                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-                };
-                html2pdf().set(opt).from(element).save();
+                // نستخدم scale: 3 لرفع دقة الصورة الملتقطة
+                html2canvas(element, { scale: 3, backgroundColor: '#ffffff' }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const ayIsmi = new Date(veriler.yil, veriler.ay - 1).toLocaleString('tr-TR', { month: 'long' });
+                    const link = document.createElement('a');
+                    link.download = `Maas_Raporu_${ayIsmi}_${veriler.yil}.png`;
+                    link.href = imgData;
+                    link.click();
+                });
             };
 
             return (
@@ -217,8 +217,8 @@
                                     )}
                                 </div>
 
-                                <button onClick={pdfIndir} className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded flex items-center justify-center gap-2 transition-colors">
-                                    <i className="fa-solid fa-download"></i> PDF Olarak İndir
+                                <button onClick={resimIndir} className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded flex items-center justify-center gap-2 transition-colors">
+                                    <i className="fa-solid fa-image"></i> PNG Olarak İndir
                                 </button>
                             </div>
                         </div>
