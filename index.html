@@ -139,6 +139,7 @@
                 const element = document.getElementById('rapor-alani');
                 
                 try {
+                    // نستخدم scale: 3 لرفع دقة الصورة الملتقطة
                     const canvas = await html2canvas(element, { scale: 3, backgroundColor: '#ffffff' });
                     canvas.toBlob((blob) => {
                         const url = URL.createObjectURL(blob);
@@ -213,6 +214,7 @@
 
                     <div className="max-w-6xl mx-auto">
                         
+                        {/* Header Section */}
                         <div className="bg-gradient-to-r from-brand-900 to-brand-600 rounded-t-2xl p-6 md:p-8 shadow-lg relative overflow-hidden">
                             <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
                             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -232,14 +234,17 @@
                             </div>
                         </div>
 
-                        <div className="bg-white shadow-xl rounded-b-2xl flex flex-col lg:flex-row border border-slate-100 mb-8">
+                        {/* Main Content Grid */}
+                        <div className="bg-white shadow-xl rounded-b-2xl flex flex-col lg:flex-row border border-slate-100">
                             
+                            {/* Left Column: Form Inputs */}
                             <div className="w-full lg:w-7/12 p-6 md:p-8 lg:border-r border-slate-100">
                                 <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
                                     <i className="fa-solid fa-pen-to-square text-brand-500"></i> Veri Giriş Paneli
                                 </h2>
                                 
                                 <div className="space-y-6">
+                                    {/* Section 1: Basic Info */}
                                     <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 shadow-sm">
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                                             <div>
@@ -259,6 +264,7 @@
                                         </div>
                                     </div>
 
+                                    {/* Section 2: Allowances */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         <div className="bg-blue-50/50 p-5 rounded-xl border border-blue-100 shadow-sm">
                                             <InputField label="Günlük Yol Ücreti (TL)" name="yolUcreti" icon="fa-bus" value={veriler.yolUcreti} color="blue" onChange={handleChange} />
@@ -268,7 +274,9 @@
                                         </div>
                                     </div>
 
+                                    {/* Section 3: Overtime & Deductions */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        {/* Overtime (Green) */}
                                         <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-100 shadow-sm space-y-4">
                                             <h3 className="text-sm font-bold text-emerald-800 border-b border-emerald-200 pb-2 flex items-center gap-2">
                                                 <i className="fa-solid fa-arrow-trend-up"></i> Fazla Mesai (Ek Kazanç)
@@ -279,6 +287,7 @@
                                             </div>
                                         </div>
 
+                                        {/* Deductions (Red) */}
                                         <div className="bg-rose-50 p-5 rounded-xl border border-rose-100 shadow-sm space-y-4">
                                             <h3 className="text-sm font-bold text-rose-800 border-b border-rose-200 pb-2 flex items-center gap-2">
                                                 <i className="fa-solid fa-arrow-trend-down"></i> Devamsızlık (Kesinti)
@@ -290,12 +299,14 @@
                                         </div>
                                     </div>
 
+                                    {/* Official Holidays */}
                                     <div className="bg-purple-50 p-5 rounded-xl border border-purple-100 shadow-sm">
                                         <InputField label="Resmi Tatil / Ücretli İzin (Gün)" name="resmiTatilGunleri" icon="fa-umbrella-beach" value={veriler.resmiTatilGunleri} placeholder="0" color="purple" onChange={handleChange} />
                                     </div>
                                 </div>
                             </div>
 
+                            {/* Right Column: Payslip Result */}
                             <div className="w-full lg:w-5/12 bg-slate-50 p-6 md:p-8 flex flex-col justify-between">
                                 
                                 <div id="rapor-alani" className="bg-white p-6 rounded-xl shadow-md border border-slate-200 relative overflow-hidden">
@@ -350,6 +361,25 @@
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* signature inside payslip area so it appears in downloaded image */}
+                                    <div className="mt-8 pt-6 border-t border-slate-200">
+                                        <div className="flex items-center gap-4 bg-slate-50 border border-slate-100 px-6 py-4 rounded-full shadow-inner">
+                                            {/* Stylized Mechatronics Icon combining fa-gear, fa-robot, fa-microchip */}
+                                            <div className="relative w-16 h-16 flex items-center justify-center">
+                                                <i className="fa-solid fa-gear absolute text-slate-400/50 text-6xl"></i>
+                                                <i className="fa-solid fa-robot absolute text-brand-600 text-3xl"></i>
+                                                <i className="fa-solid fa-microchip absolute text-slate-400 text-xl top-1/4 left-1/4"></i>
+                                            </div>
+                                            <div className="text-left" dir="ltr">
+                                                <p className="text-xs text-slate-500 font-medium tracking-wide">Mühendis</p>
+                                                <p className="text-lg font-bold text-slate-800">
+                                                    Nuh Almaghrıbı Tarafından Tasarlandı
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
 
                                 <button 
@@ -364,15 +394,11 @@
                                 </button>
                                 <p className="text-center text-xs text-slate-400 mt-3 font-medium">
                                     <i className="fa-solid fa-shield-halved mr-1"></i> Verileriniz sadece cihazınızda hesaplanır.
+                                
                                 </p>
                             </div>
-                        </div>
-                        
-                        {/* توقيع المطور (تمت الإضافة هنا) */}
-                        <div className="text-center text-sm text-slate-500" dir="rtl">
-                            تم تطوير هذا الموقع من قبل المهندس <span className="font-bold text-slate-700" dir="ltr">Nuh Almaghrıbı</span> <i className="fa-solid fa-code text-brand-500 text-xs mr-1"></i>
-                        </div>
 
+                        </div>
                     </div>
                 </div>
             );
