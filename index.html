@@ -39,6 +39,23 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
+        // إخراج المكون إلى الخارج لمنع مشكلة فقدان التركيز (Loss of focus)
+        const InputField = ({ label, name, type="number", icon, value, placeholder, color="brand", onChange }) => (
+            <div>
+                <label className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 text-${color}-700`}>{label}</label>
+                <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i className={`fa-solid ${icon} text-slate-400`}></i>
+                    </div>
+                    <input 
+                        type={type} name={name} value={value} onChange={onChange} placeholder={placeholder}
+                        className={`w-full pl-10 pr-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm shadow-sm placeholder-slate-400
+                        focus:outline-none focus:border-${color}-500 focus:ring-1 focus:ring-${color}-500 transition-all`}
+                    />
+                </div>
+            </div>
+        );
+
         function App() {
             const bugun = new Date();
             const aylar = [
@@ -46,7 +63,6 @@
                 "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
             ];
 
-            // تحويل القيم إلى نصوص (Strings) لتجنب أخطاء الإدخال في React
             const [veriler, setVeriler] = useState({
                 netMaas: '',
                 yolUcreti: '168',
@@ -86,7 +102,6 @@
             };
 
             const hesapla = () => {
-                // تحويل النصوص إلى أرقام أثناء الحساب فقط لتجنب أي أخطاء
                 const netMaas = parseFloat(veriler.netMaas) || 0;
                 const yolUcreti = parseFloat(veriler.yolUcreti) || 0;
                 const yemekUcreti = parseFloat(veriler.yemekUcreti) || 0;
@@ -113,7 +128,6 @@
                 setSonuclar({ gunlukUcret, saatlikUcret, aylikIsGunu, fiiliCalismaGunleri, mesaiUcreti, toplamYol, toplamYemek, kesinti, toplamMaas });
             };
 
-            // وظيفة توليد الصورة وفتح النافذة المنبثقة
             const raporHazirla = async () => {
                 setIsGenerating(true);
                 const element = document.getElementById('rapor-alani');
@@ -132,7 +146,6 @@
                 }
             };
 
-            // وظيفة التنزيل للابتوب
             const indir = () => {
                 const ayIsmi = aylar[parseInt(veriler.ay) - 1];
                 const link = document.createElement('a');
@@ -141,7 +154,6 @@
                 link.click();
             };
 
-            // وظيفة المشاركة السريعة للآيفون والموبايل
             const paylas = async () => {
                 const ayIsmi = aylar[parseInt(veriler.ay) - 1];
                 const file = new File([previewImage.blob], `VTEKE_Bordro_${ayIsmi}_${veriler.yil}.png`, { type: 'image/png' });
@@ -161,26 +173,9 @@
                 }
             };
 
-            const InputField = ({ label, name, type="number", icon, value, placeholder, color="brand" }) => (
-                <div>
-                    <label className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 text-${color}-700`}>{label}</label>
-                    <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i className={`fa-solid ${icon} text-slate-400`}></i>
-                        </div>
-                        <input 
-                            type={type} name={name} value={value} onChange={handleChange} placeholder={placeholder}
-                            className={`w-full pl-10 pr-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm shadow-sm placeholder-slate-400
-                            focus:outline-none focus:border-${color}-500 focus:ring-1 focus:ring-${color}-500 transition-all`}
-                        />
-                    </div>
-                </div>
-            );
-
             return (
                 <div className="pt-4 md:pt-10 px-4">
                     
-                    {/* النافذة المنبثقة للمعاينة والمشاركة (تظهر فقط عند جاهزية الصورة) */}
                     {previewImage && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
                             <div className="bg-white rounded-2xl p-5 w-full max-w-md shadow-2xl relative flex flex-col items-center animate-fade-in-up">
@@ -200,7 +195,6 @@
                                     <button onClick={indir} className="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors">
                                         <i className="fa-solid fa-download"></i> İndir
                                     </button>
-                                    {/* زر المشاركة يظهر فقط إذا كان الجهاز يدعمه (مثل الآيفون) */}
                                     {navigator.canShare && (
                                         <button onClick={paylas} className="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors">
                                             <i className="fa-solid fa-share-nodes"></i> Paylaş
@@ -213,7 +207,6 @@
 
                     <div className="max-w-6xl mx-auto">
                         
-                        {/* Header Section */}
                         <div className="bg-gradient-to-r from-brand-900 to-brand-600 rounded-t-2xl p-6 md:p-8 shadow-lg relative overflow-hidden">
                             <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
                             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -233,17 +226,14 @@
                             </div>
                         </div>
 
-                        {/* Main Content Grid */}
                         <div className="bg-white shadow-xl rounded-b-2xl flex flex-col lg:flex-row border border-slate-100">
                             
-                            {/* Left Column: Form Inputs */}
                             <div className="w-full lg:w-7/12 p-6 md:p-8 lg:border-r border-slate-100">
                                 <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
                                     <i className="fa-solid fa-pen-to-square text-brand-500"></i> Veri Giriş Paneli
                                 </h2>
                                 
                                 <div className="space-y-6">
-                                    {/* Section 1: Basic Info */}
                                     <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 shadow-sm">
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                                             <div>
@@ -258,55 +248,49 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <InputField label="Yıl" name="yil" icon="fa-calendar-days" value={veriler.yil} />
-                                            {/* تم إصلاح حقل الراتب هنا */}
-                                            <InputField label="Net Maaş (TL)" name="netMaas" icon="fa-turkish-lira-sign" placeholder="Örn: 17002" color="brand" value={veriler.netMaas} />
+                                            {/* تم إضافة خاصية onChange لكل المربعات هنا */}
+                                            <InputField label="Yıl" name="yil" icon="fa-calendar-days" value={veriler.yil} onChange={handleChange} />
+                                            <InputField label="Net Maaş (TL)" name="netMaas" icon="fa-turkish-lira-sign" placeholder="Örn: 17002" color="brand" value={veriler.netMaas} onChange={handleChange} />
                                         </div>
                                     </div>
 
-                                    {/* Section 2: Allowances */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         <div className="bg-blue-50/50 p-5 rounded-xl border border-blue-100 shadow-sm">
-                                            <InputField label="Günlük Yol Ücreti (TL)" name="yolUcreti" icon="fa-bus" value={veriler.yolUcreti} color="blue" />
+                                            <InputField label="Günlük Yol Ücreti (TL)" name="yolUcreti" icon="fa-bus" value={veriler.yolUcreti} color="blue" onChange={handleChange} />
                                         </div>
                                         <div className="bg-orange-50/50 p-5 rounded-xl border border-orange-100 shadow-sm">
-                                            <InputField label="Günlük Yemek Ücreti (TL)" name="yemekUcreti" icon="fa-utensils" value={veriler.yemekUcreti} color="orange" />
+                                            <InputField label="Günlük Yemek Ücreti (TL)" name="yemekUcreti" icon="fa-utensils" value={veriler.yemekUcreti} color="orange" onChange={handleChange} />
                                         </div>
                                     </div>
 
-                                    {/* Section 3: Overtime & Deductions */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                        {/* Overtime (Green) */}
                                         <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-100 shadow-sm space-y-4">
                                             <h3 className="text-sm font-bold text-emerald-800 border-b border-emerald-200 pb-2 flex items-center gap-2">
                                                 <i className="fa-solid fa-arrow-trend-up"></i> Fazla Mesai (Ek Kazanç)
                                             </h3>
                                             <div className="grid grid-cols-2 gap-3">
-                                                <InputField label="Gün Olarak" name="mesaiGunleri" icon="fa-sun" value={veriler.mesaiGunleri} placeholder="0" color="emerald" />
-                                                <InputField label="Saat Olarak" name="mesaiSaatleri" icon="fa-clock" value={veriler.mesaiSaatleri} placeholder="0" color="emerald" />
+                                                <InputField label="Gün Olarak" name="mesaiGunleri" icon="fa-sun" value={veriler.mesaiGunleri} placeholder="0" color="emerald" onChange={handleChange} />
+                                                <InputField label="Saat Olarak" name="mesaiSaatleri" icon="fa-clock" value={veriler.mesaiSaatleri} placeholder="0" color="emerald" onChange={handleChange} />
                                             </div>
                                         </div>
 
-                                        {/* Deductions (Red) */}
                                         <div className="bg-rose-50 p-5 rounded-xl border border-rose-100 shadow-sm space-y-4">
                                             <h3 className="text-sm font-bold text-rose-800 border-b border-rose-200 pb-2 flex items-center gap-2">
                                                 <i className="fa-solid fa-arrow-trend-down"></i> Devamsızlık (Kesinti)
                                             </h3>
                                             <div className="grid grid-cols-2 gap-3">
-                                                <InputField label="Gün Olarak" name="devamsizlikGunleri" icon="fa-calendar-xmark" value={veriler.devamsizlikGunleri} placeholder="0" color="rose" />
-                                                <InputField label="Saat Olarak" name="devamsizlikSaatleri" icon="fa-user-clock" value={veriler.devamsizlikSaatleri} placeholder="0" color="rose" />
+                                                <InputField label="Gün Olarak" name="devamsizlikGunleri" icon="fa-calendar-xmark" value={veriler.devamsizlikGunleri} placeholder="0" color="rose" onChange={handleChange} />
+                                                <InputField label="Saat Olarak" name="devamsizlikSaatleri" icon="fa-user-clock" value={veriler.devamsizlikSaatleri} placeholder="0" color="rose" onChange={handleChange} />
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Official Holidays */}
                                     <div className="bg-purple-50 p-5 rounded-xl border border-purple-100 shadow-sm">
-                                        <InputField label="Resmi Tatil / Ücretli İzin (Gün)" name="resmiTatilGunleri" icon="fa-umbrella-beach" value={veriler.resmiTatilGunleri} placeholder="0" color="purple" />
+                                        <InputField label="Resmi Tatil / Ücretli İzin (Gün)" name="resmiTatilGunleri" icon="fa-umbrella-beach" value={veriler.resmiTatilGunleri} placeholder="0" color="purple" onChange={handleChange} />
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Right Column: Payslip Result */}
                             <div className="w-full lg:w-5/12 bg-slate-50 p-6 md:p-8 flex flex-col justify-between">
                                 
                                 <div id="rapor-alani" className="bg-white p-6 rounded-xl shadow-md border border-slate-200 relative overflow-hidden">
